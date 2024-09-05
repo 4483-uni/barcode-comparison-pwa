@@ -1,6 +1,6 @@
 {
-    "name": "バーコード比較アプリ",
-    "short_name": "バーコード比較",
+    "name": "データマトリクス比較アプリ",
+    "short_name": "データマトリクス比較",
     "start_url": "/index.html",
     "display": "standalone",
     "background_color": "#ffffff",
