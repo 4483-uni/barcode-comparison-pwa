@@ -16,28 +16,30 @@ document.getElementById('compare').addEventListener('click', function() {
 // カメラからデータマトリクスを読み取る機能
 document.getElementById('start-scan').addEventListener('click', function() {
     // QuaggaJSの初期化とカメラ設定
-    Quagga.init({
-        inputStream: {
-            type: "LiveStream",
-            target: document.querySelector('#scanner'),
-            constraints: {
-                width: 640,
-                height: 480,
-                facingMode: "environment"  // 背面カメラを使用
-                }
-        },
-        decoder: {
-            readers: ["datamatrix_reader"]  // データマトリクスリーダーを使用
-        },
-        locate: true,  // バーコードの位置を自動検出
-        debug: true  // デバッグモードを有効にする
-    }, function(err) {
-        if (err) {
-            console.error("Error initializing Quagga:", err);
-            return;
+Quagga.init({
+    inputStream: {
+        type: "LiveStream",
+        target: document.querySelector('#scanner'),
+        constraints: {
+            width: 640,
+            height: 480,
+            facingMode: "environment"  // 背面カメラを使用
         }
-        Quagga.start();  // スキャンの開始
-    });
+    },
+    decoder: {
+        readers: ["datamatrix_reader"]
+    },
+    locate: true,  // バーコードの位置を自動検出
+    debug: true  // デバッグモードを有効にする
+}, function(err) {
+    if (err) {
+        console.error("Error initializing Quagga:", err);
+        return;
+    }
+    console.log("Quagga initialization succeeded");  // 初期化が成功したか確認
+    Quagga.start();  // スキャンの開始
+});
+
     
     // スキャン結果の処理
     Quagga.onDetected(function(result) {
