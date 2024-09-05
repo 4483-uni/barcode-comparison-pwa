@@ -12,6 +12,14 @@
     <h1>データマトリクス比較</h1>
     <input type="text" id="barcode1" placeholder="ファイルのデータマトリクスを入力">
     <input type="text" id="barcode2" placeholder="ユニットのデータマトリクスを入力">
+
+    <!-- スキャン開始ボタン -->
+    <button id="start-scan">スキャンを開始</button>
+
+    <!-- カメラの映像を表示するための領域 -->
+    <div id="scanner" style="width: 300px; height: 200px; border: 1px solid black;"></div>
+
+    <!-- 比較ボタン -->
     <button id="compare">比較</button>
     <p id="result"></p>
     
