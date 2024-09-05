@@ -18,24 +18,23 @@ document.getElementById('start-scan').addEventListener('click', function() {
     // QuaggaJSの初期化とカメラ設定
 Quagga.init({
     inputStream: {
-        type : "LiveStream",
+        type: "LiveStream",
         target: document.querySelector('#scanner'),
         constraints: {
-            width: 640,  // 解像度の設定
+            width: 640,
             height: 480,
             facingMode: "environment"  // 背面カメラを使用
         }
     },
     decoder: {
-        readers: ["datamatrix_reader"]
+        readers: ["datamatrix_reader"]  // データマトリクスリーダーを使用
     }
 }, function(err) {
     if (err) {
-        console.log(err);
+        console.error("Error initializing Quagga:", err);
         return;
     }
-    console.log("Initialization finished. Ready to start");
-    Quagga.start();
+    Quagga.start();  // スキャンの開始
 });
 
     // スキャン結果の処理
