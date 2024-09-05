@@ -28,7 +28,9 @@ document.getElementById('start-scan').addEventListener('click', function() {
         },
         decoder: {
             readers: ["datamatrix_reader"]  // データマトリクスリーダーを使用
-            }
+        },
+        locate: true,  // バーコードの位置を自動検出
+        debug: true  // デバッグモードを有効にする
     }, function(err) {
         if (err) {
             console.error("Error initializing Quagga:", err);
