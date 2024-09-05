@@ -4,10 +4,10 @@ document.getElementById('compare').addEventListener('click', function() {
     const resultElement = document.getElementById('result');
 
     if (barcode1 === barcode2) {
-        resultElement.textContent = 'OK: バーコードが一致しました';
+        resultElement.textContent = 'OK: 繝舌�ｼ繧ｳ繝ｼ繝峨′荳閾ｴ縺励∪縺励◆';
         resultElement.style.color = 'green';
     } else {
-        resultElement.textContent = 'NG: バーコードが一致しません';
+        resultElement.textContent = 'NG: 繝舌�ｼ繧ｳ繝ｼ繝峨′荳閾ｴ縺励∪縺帙ｓ';
         resultElement.style.color = 'red';
     }
 });
