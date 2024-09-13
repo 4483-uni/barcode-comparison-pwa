@@ -15,7 +15,8 @@ document.getElementById('compare').addEventListener('click', function() {
 
 // ZXingを使用してデータマトリクスを読み取る機能
 document.getElementById('start-scan').addEventListener('click', function() {
-    const codeReader = new ZXing.BrowserMultiFormatReader();
+    // データマトリクスリーダーを指定
+    const codeReader = new ZXing.BrowserBarcodeReader([ZXing.BarcodeFormat.DATA_MATRIX]);
     const videoElement = document.getElementById('video');
 
     codeReader.decodeOnceFromVideoDevice(undefined, 'video').then(result => {
@@ -24,5 +25,7 @@ document.getElementById('start-scan').addEventListener('click', function() {
         codeReader.reset(); // スキャンを停止
     }).catch(err => {
         console.error(err);
+        alert('データマトリクスコードを読み取れませんでした。もう一度お試しください。');
     });
 });
+
