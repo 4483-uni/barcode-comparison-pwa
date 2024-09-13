@@ -27,6 +27,11 @@ document.getElementById('start-scan').addEventListener('click', function() {
                 facingMode: "environment"
             }
         },
+         locator: {
+    patchSize: 'medium',
+    halfSample: true,
+  }, 
+        numOfWorkers: 2,
         decoder: {
             readers: ["datamatrix_reader"]  // データマトリクスリーダーを使用
         },
