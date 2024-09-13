@@ -3,26 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>バーコード比較 PWA</title>
+    <title>データマトリクス比較 PWA</title>
     <link rel="stylesheet" href="style.css">
-    <!-- QuaggaJSのCDN -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
+    <!-- ZXingライブラリの読み込み -->
+    <script src="https://unpkg.com/@zxing/library@latest"></script>
 </head>
 <body>
     <h1>データマトリクス比較</h1>
+
+    <!-- 入力欄 -->
     <input type="text" id="barcode1" placeholder="ファイルのデータマトリクスを入力">
     <input type="text" id="barcode2" placeholder="ユニットのデータマトリクスを入力">
 
     <!-- スキャン開始ボタン -->
     <button id="start-scan">スキャンを開始</button>
 
-    <!-- カメラの映像を表示するための領域 -->
-    <div id="scanner" style="width: 300px; height: 200px; border: 1px solid black;"></div>
+    <!-- カメラの映像を表示するためのビデオ要素 -->
+    <video id="video" width="300" height="200" style="border: 1px solid black;"></video>
 
     <!-- 比較ボタン -->
     <button id="compare">比較</button>
+
+    <!-- 結果表示 -->
     <p id="result"></p>
-    
+
+    <!-- JavaScriptファイルの読み込み -->
     <script src="app.js"></script>
 </body>
 </html>
