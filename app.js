@@ -13,39 +13,16 @@ document.getElementById('compare').addEventListener('click', function() {
     }
 });
 
-// カメラからデータマトリクスを読み取る機能
+// ZXingを使用してデータマトリクスを読み取る機能
 document.getElementById('start-scan').addEventListener('click', function() {
-    // QuaggaJSの初期化とカメラ設定
-Quagga.init({
-    inputStream: {
-        type: "LiveStream",
-        target: document.querySelector('#scanner'),
-        constraints: {
-            width: 640,
-            height: 480,
-            facingMode: "environment"  // 背面カメラを使用
-        }
-    },
-    decoder: {
-        readers: ["datamatrix_reader"]
-    },
-    locate: true,  // バーコードの位置を自動検出
-    debug: true  // デバッグモードを有効にする
-}, function(err) {
-    if (err) {
-        console.error("Error initializing Quagga:", err);
-        return;
-    }
-    console.log("Quagga initialization succeeded");  // 初期化が成功したか確認
-    Quagga.start();  // スキャンの開始
-});
+    const codeReader = new ZXing.BrowserMultiFormatReader();
+    const videoElement = document.getElementById('video');
 
-    
-    // スキャン結果の処理
-    Quagga.onDetected(function(result) {
-        const code = result.codeResult.code;  // 読み取ったコードを取得
-        console.log("Scanned code: ", code);  // コンソールに結果を表示
-        document.getElementById('barcode1').value = code;  // 結果を入力欄に反映
-        Quagga.stop();  // 一度読み取ったらスキャンを停止
+    codeReader.decodeOnceFromVideoDevice(undefined, 'video').then(result => {
+        console.log(result);
+        document.getElementById('barcode1').value = result.text; // 結果を入力欄に反映
+        codeReader.reset(); // スキャンを停止
+    }).catch(err => {
+        console.error(err);
     });
 });
