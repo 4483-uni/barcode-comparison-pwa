@@ -13,51 +13,38 @@ document.getElementById('compare').addEventListener('click', function() {
     }
 });
 
-// Barcode Detector APIを使用してデータマトリクスを読み取る機能
+// Quagga2を使用してデータマトリクスを読み取る機能
 document.getElementById('start-scan').addEventListener('click', function() {
-    if (!('BarcodeDetector' in window)) {
-        alert('このブラウザはBarcode Detector APIをサポートしていません。');
-        return;
-    }
+    // Quagga2の初期化とカメラ設定
+    Quagga.init({
+        inputStream: {
+            type: "LiveStream",
+            target: document.querySelector('#video'),
+            constraints: {
+                width: 640,
+                height: 480,
+                facingMode: "environment"
+            }
+        },
+        decoder: {
+            readers: ["datamatrix_reader"]  // データマトリクスリーダーを使用
+        },
+        locate: true,
+        numOfWorkers: 4
+    }, function(err) {
+        if (err) {
+            console.error("Error initializing Quagga:", err);
+            alert('Quaggaの初期化に失敗しました。');
+            return;
+        }
+        Quagga.start();
+    });
 
-    // データマトリクスを含むバーコード形式を指定
-    const formats = ['data_matrix'];
-    const barcodeDetector = new BarcodeDetector({ formats });
-
-    // カメラの映像を取得
-    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
-        .then(stream => {
-            const video = document.getElementById('video');
-            video.srcObject = stream;
-            video.play();
-
-            // フレームごとにバーコードを検出
-            const detectBarcode = () => {
-                barcodeDetector.detect(video)
-                    .then(barcodes => {
-                        if (barcodes.length > 0) {
-                            // バーコードを検出したら処理
-                            console.log(barcodes[0].rawValue);
-                            document.getElementById('barcode1').value = barcodes[0].rawValue;
-                            // ストリームを停止
-                            stream.getTracks().forEach(track => track.stop());
-                            video.pause();
-                        } else {
-                            // 次のフレームで再度検出
-                            requestAnimationFrame(detectBarcode);
-                        }
-                    })
-                    .catch(err => {
-                        console.error(err);
-                        alert('バーコードの検出中にエラーが発生しました。');
-                    });
-            };
-
-            // 検出を開始
-            requestAnimationFrame(detectBarcode);
-        })
-        .catch(err => {
-            console.error(err);
-            alert('カメラへのアクセスが許可されていないか、エラーが発生しました。');
-        });
+    // スキャン結果の処理
+    Quagga.onDetected(function(result) {
+        const code = result.codeResult.code;
+        console.log("Scanned code: ", code);
+        document.getElementById('barcode1').value = code;  // 結果を入力欄に反映
+        Quagga.stop();  // スキャンを停止
+    });
 });
