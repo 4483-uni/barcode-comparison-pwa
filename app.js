@@ -1,4 +1,4 @@
-// バーコード比較機能
+// バーコード比較機能（既存のコードはそのまま）
 document.getElementById('compare').addEventListener('click', function() {
     const barcode1 = document.getElementById('barcode1').value;
     const barcode2 = document.getElementById('barcode2').value;
@@ -13,29 +13,51 @@ document.getElementById('compare').addEventListener('click', function() {
     }
 });
 
-// ZXingを使用してデータマトリクスを読み取る機能
+// Barcode Detector APIを使用してデータマトリクスを読み取る機能
 document.getElementById('start-scan').addEventListener('click', function() {
-    const codeReader = new ZXing.BrowserBarcodeReader([ZXing.BarcodeFormat.DATA_MATRIX]);
-    const videoElement = document.getElementById('video');
+    if (!('BarcodeDetector' in window)) {
+        alert('このブラウザはBarcode Detector APIをサポートしていません。');
+        return;
+    }
 
-    // カメラの制約を設定
-    const constraints = {
-        video: {
-            facingMode: 'environment', // 背面カメラを使用
-            width: { ideal: 1920 },
-            height: { ideal: 1080 },
-            focusMode: 'continuous' // フォーカスを自動調整
-        }
-    };
+    // データマトリクスを含むバーコード形式を指定
+    const formats = ['data_matrix'];
+    const barcodeDetector = new BarcodeDetector({ formats });
 
-    codeReader.decodeOnceFromConstraints(constraints, 'video').then(result => {
-        console.log(result);
-        document.getElementById('barcode1').value = result.text;
-        codeReader.reset();
-    }).catch(err => {
-        console.error(err);
-        alert('データマトリクスコードを読み取れませんでした。もう一度お試しください。');
-    });
+    // カメラの映像を取得
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+        .then(stream => {
+            const video = document.getElementById('video');
+            video.srcObject = stream;
+            video.play();
+
+            // フレームごとにバーコードを検出
+            const detectBarcode = () => {
+                barcodeDetector.detect(video)
+                    .then(barcodes => {
+                        if (barcodes.length > 0) {
+                            // バーコードを検出したら処理
+                            console.log(barcodes[0].rawValue);
+                            document.getElementById('barcode1').value = barcodes[0].rawValue;
+                            // ストリームを停止
+                            stream.getTracks().forEach(track => track.stop());
+                            video.pause();
+                        } else {
+                            // 次のフレームで再度検出
+                            requestAnimationFrame(detectBarcode);
+                        }
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        alert('バーコードの検出中にエラーが発生しました。');
+                    });
+            };
+
+            // 検出を開始
+            requestAnimationFrame(detectBarcode);
+        })
+        .catch(err => {
+            console.error(err);
+            alert('カメラへのアクセスが許可されていないか、エラーが発生しました。');
+        });
 });
-
-
