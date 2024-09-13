@@ -7,6 +7,16 @@
     <link rel="stylesheet" href="style.css">
     <!-- ZXingライブラリの読み込み -->
     <script src="https://unpkg.com/@zxing/library@latest"></script>
+
+    <!-- ビデオ要素のスタイルを追加 -->
+    <style>
+        #video {
+            border: 1px solid black;
+            width: 100%;
+            max-width: 400px;
+            height: auto;
+        }
+    </style>
 </head>
 <body>
     <h1>データマトリクス比較</h1>
@@ -19,7 +29,7 @@
     <button id="start-scan">スキャンを開始</button>
 
     <!-- カメラの映像を表示するためのビデオ要素 -->
-    <video id="video" width="300" height="200" style="border: 1px solid black;"></video>
+    <video id="video"></video>
 
     <!-- 比較ボタン -->
     <button id="compare">比較</button>
