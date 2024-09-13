@@ -27,7 +27,7 @@ document.getElementById('start-scan').addEventListener('click', function() {
             }
         },
         decoder: {
-            readers: ["datamatrix_reader"]  // データマトリクスリーダーを使用
+            readers: ["datamatrix"]  // データマトリクスリーダーを使用
         },
         locate: true,
         numOfWorkers: 4
