@@ -18,7 +18,6 @@ document.getElementById('start-scan').addEventListener('click', function() {
     // Quagga2の初期化とカメラ設定
     Quagga.init({
         inputStream: {
-            name: 'Live',
             type: "LiveStream",
             target: document.querySelector('#video'),
             constraints: {
@@ -27,13 +26,8 @@ document.getElementById('start-scan').addEventListener('click', function() {
                 facingMode: "environment"
             }
         },
-         locator: {
-    patchSize: 'medium',
-    halfSample: true,
-  }, 
-        numOfWorkers: 2,
         decoder: {
-            readers: ["datamatrix_reader"]  // データマトリクスリーダーを使用
+            readers: ["datamatrix"]  // リーダー名を修正
         },
         locate: true,
         numOfWorkers: 4
