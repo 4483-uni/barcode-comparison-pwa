@@ -18,6 +18,7 @@ document.getElementById('start-scan').addEventListener('click', function() {
     // Quagga2の初期化とカメラ設定
     Quagga.init({
         inputStream: {
+            name: 'Live',
             type: "LiveStream",
             target: document.querySelector('#video'),
             constraints: {
