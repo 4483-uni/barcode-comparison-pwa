@@ -1,4 +1,4 @@
-// バーコード比較機能（既存のコードはそのまま）
+// バーコード比較機能
 document.getElementById('compare').addEventListener('click', function() {
     const barcode1 = document.getElementById('barcode1').value;
     const barcode2 = document.getElementById('barcode2').value;
