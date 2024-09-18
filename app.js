@@ -27,13 +27,12 @@ document.getElementById('start-scan').addEventListener('click', function() {
             }
         },
         decoder: {
-            readers: ["datamatrix"]  // リーダー名を修正
-        },
-        locate: true,
-        numOfWorkers: 4
-    }, function(err) {
+            readers: ["datamatrix"],  // リーダー名を修正
+            },
+    }, 
+    (error: any) => {
         if (err) {
-            console.error("Error initializing Quagga:", err);
+            console.log(err);
             alert('Quaggaの初期化に失敗しました。');
             return;
         }
