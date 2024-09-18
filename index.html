@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>データマトリクス比較 PWA</title>
     <link rel="stylesheet" href="style.css">
-    <!-- Quagga2ライブラリの読み込み（完全なビルド） -->
-    <script src="https://unpkg.com/@ericblade/quagga2@1.7.4/dist/quagga.min.js"></script>
+    <!-- ZXingライブラリの読み込み -->
+    <script src="https://unpkg.com/@zxing/library@latest"></script>
 </head>
 <body>
     <h1>データマトリクス比較</h1>
@@ -19,7 +19,7 @@
     <button id="start-scan">スキャンを開始</button>
 
     <!-- カメラの映像を表示するためのビデオ要素 -->
-    <video id="video"></video>
+    <video id="video" width="300" height="200" style="border: 1px solid black;"></video>
 
     <!-- 比較ボタン -->
     <button id="compare">比較</button>
