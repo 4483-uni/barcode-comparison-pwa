@@ -33,6 +33,7 @@ document.getElementById('start-scan').addEventListener('click', function() {
     const constraints = {
         video: {
             facingMode: 'environment',
+            focusMode: 'continuous', // 連続オートフォーカス
             width: { ideal: 1920 },
             height: { ideal: 1080 }
         }
