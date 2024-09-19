@@ -25,7 +25,7 @@ document.getElementById('start-scan').addEventListener('click', function() {
     //************************
     // スキャン間隔を設定（ミリ秒単位）
     const options = {
-        delayBetweenScanAttempts: 500 // 500ミリ秒ごとにスキャン
+        delayBetweenScanAttempts: 5000 // 500ミリ秒ごとにスキャン
     };
     //************************
     
