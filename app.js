@@ -31,26 +31,39 @@ document.getElementById('start-scan').addEventListener('click', function() {
     document.getElementById('scanning-indicator').style.display = 'block';
     scanning = true;
 
-    const scanInterval = setInterval(() => {
-        if (!scanning) {
-            clearInterval(scanInterval);
-            return;
-        }
-        codeReader.decodeOnceFromVideoElement(videoElement).then(result => {
-            console.log(result);
-            document.getElementById('barcode1').value = result.text;
-            scanning = false;
-            codeReader.reset();
-            document.getElementById('scanning-indicator').style.display = 'none';
-        }).catch(err => {
-            if (!(err instanceof ZXing.NotFoundException)) {
-                console.error(err);
-            }
+    // カメラストリームを取得して videoElement に設定
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+        .then(stream => {
+            videoElement.srcObject = stream;
+            videoElement.play();
+
+            // スキャンインターバルを開始
+            const scanInterval = setInterval(() => {
+                if (!scanning) {
+                    clearInterval(scanInterval);
+                    // ストリームを停止
+                    stream.getTracks().forEach(track => track.stop());
+                    return;
+                }
+                codeReader.decodeOnceFromVideoElement(videoElement).then(result => {
+                    console.log(result);
+                    document.getElementById('barcode1').value = result.text;
+                    scanning = false;
+                    codeReader.reset();
+                    document.getElementById('scanning-indicator').style.display = 'none';
+                }).catch(err => {
+                    if (!(err instanceof ZXing.NotFoundException)) {
+                        console.error(err);
+                    }
+                });
+
+                // スキャン試行回数を更新
+                scanCount++;
+                document.getElementById('scanCount').textContent = scanCount;
+            }, 500); // 500ミリ秒ごとにスキャン
+        })
+        .catch(err => {
+            console.error(err);
+            alert('カメラへのアクセスが許可されていないか、エラーが発生しました。');
         });
-
-        // スキャン試行回数を更新
-        scanCount++;
-        document.getElementById('scanCount').textContent = scanCount;
-
-    }, 500); // 500ミリ秒ごとにスキャン
 });
