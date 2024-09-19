@@ -15,14 +15,23 @@ document.getElementById('compare').addEventListener('click', function() {
 
 // ZXingを使用してデータマトリクスを読み取る機能
 document.getElementById('start-scan').addEventListener('click', function() {
-    const codeReader = new ZXing.BrowserMultiFormatReader();
+    // デコードヒントを設定
+    const hints = new Map();
+    hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [ZXing.BarcodeFormat.DATA_MATRIX]);
+    hints.set(ZXing.DecodeHintType.TRY_HARDER, true); // 認識精度を上げる
+
+    const codeReader = new ZXing.BrowserMultiFormatReader(hints);
     const videoElement = document.getElementById('video');
 
-    codeReader.decodeOnceFromVideoDevice(undefined, 'video').then(result => {
-        console.log(result);
-        document.getElementById('barcode1').value = result.text; // 結果を入力欄に反映
-        codeReader.reset(); // スキャンを停止
-    }).catch(err => {
-        console.error(err);
+    // 連続的なスキャンを開始
+    codeReader.decodeFromVideoDevice(undefined, videoElement, (result, err) => {
+        if (result) {
+            console.log(result);
+            document.getElementById('barcode1').value = result.text; // 結果を入力欄に反映
+            codeReader.reset(); // スキャンを停止
+        }
+        if (err && !(err instanceof ZXing.NotFoundException)) {
+            console.error(err);
+        }
     });
 });
