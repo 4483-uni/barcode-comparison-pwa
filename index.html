@@ -7,13 +7,36 @@
     <link rel="stylesheet" href="style.css">
     <!-- ZXingライブラリの読み込み -->
     <script src="https://unpkg.com/@zxing/library@latest"></script>
+    <!-- ビデオ要素とオーバーレイのスタイルを追加 -->
+    <style>
+        #video {
+            width: 100%;
+        }
+        #video-container {
+            position: relative;
+            display: inline-block;
+        }
+        #overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        #scanning-indicator {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: red;
+            font-size: 18px;
+            display: none;
+        }
+    </style>
 </head>
 <body>
     <h1>データマトリクス比較</h1>
 
-    <!-- スキャン回数を表示する要素 -->
-    <p>スキャン試行回数: <span id="scanCount">0</span></p>
-    
     <!-- 入力欄 -->
     <input type="text" id="barcode1" placeholder="ファイルのデータマトリクスを入力">
     <input type="text" id="barcode2" placeholder="ユニットのデータマトリクスを入力">
@@ -21,8 +44,17 @@
     <!-- スキャン開始ボタン -->
     <button id="start-scan">スキャンを開始</button>
 
-    <!-- カメラの映像を表示するためのビデオ要素 -->
-    <video id="video" width="300" height="200" style="border: 1px solid black;"></video>
+    <!-- カメラの映像を表示するためのビデオ要素とオーバーレイ -->
+    <div id="video-container">
+        <video id="video"></video>
+        <div id="overlay">
+            <!-- スキャン中を示す表示 -->
+            <div id="scanning-indicator">スキャン中...</div>
+        </div>
+    </div>
+
+    <!-- スキャン試行回数を表示する要素 -->
+    <p>スキャン試行回数: <span id="scanCount">0</span></p>
 
     <!-- 比較ボタン -->
     <button id="compare">比較</button>
