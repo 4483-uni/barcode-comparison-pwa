@@ -29,6 +29,16 @@ document.getElementById('start-scan').addEventListener('click', function() {
     
     const videoElement = document.getElementById('video');
 
+    //********************
+    const constraints = {
+        video: {
+            facingMode: 'environment',
+            width: { ideal: 1920 },
+            height: { ideal: 1080 }
+        }
+    };
+    //********************
+    
     // スキャン試行回数をリセット
     scanCount = 0;
     document.getElementById('scanCount').textContent = scanCount;
@@ -54,7 +64,8 @@ document.getElementById('start-scan').addEventListener('click', function() {
         if (err && !(err instanceof ZXing.NotFoundException)) {
             console.error(err);
         }
-    });
+    //});
+    }, constraints);
     /*
     codeReader.decodeFromVideoDevice(undefined, videoElement, (result, err) => {
         if (result) {
