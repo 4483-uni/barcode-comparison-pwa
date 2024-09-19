@@ -1,5 +1,6 @@
 // スキャン試行回数のカウンターを初期化
 let scanCount = 0;
+let scanning = false;
 
 // バーコード比較機能
 document.getElementById('compare').addEventListener('click', function() {
@@ -20,29 +21,36 @@ document.getElementById('compare').addEventListener('click', function() {
 document.getElementById('start-scan').addEventListener('click', function() {
     const hints = new Map();
     hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [ZXing.BarcodeFormat.DATA_MATRIX]);
-    hints.set(ZXing.DecodeHintType.TRY_HARDER, true); // 認識精度を上げる
+    hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
 
     const codeReader = new ZXing.BrowserMultiFormatReader(hints);
     const videoElement = document.getElementById('video');
 
-    // スキャン試行回数をリセット
     scanCount = 0;
     document.getElementById('scanCount').textContent = scanCount;
+    document.getElementById('scanning-indicator').style.display = 'block';
+    scanning = true;
 
-    // 連続的なスキャンを開始
-    codeReader.decodeFromVideoDevice(undefined, videoElement, (result, err) => {
+    const scanInterval = setInterval(() => {
+        if (!scanning) {
+            clearInterval(scanInterval);
+            return;
+        }
+        codeReader.decodeOnceFromVideoElement(videoElement).then(result => {
+            console.log(result);
+            document.getElementById('barcode1').value = result.text;
+            scanning = false;
+            codeReader.reset();
+            document.getElementById('scanning-indicator').style.display = 'none';
+        }).catch(err => {
+            if (!(err instanceof ZXing.NotFoundException)) {
+                console.error(err);
+            }
+        });
+
         // スキャン試行回数を更新
         scanCount++;
         document.getElementById('scanCount').textContent = scanCount;
 
-        if (result) {
-            console.log(result);
-            document.getElementById('barcode1').value = result.text; // 結果を入力欄に反映
-            codeReader.reset(); // スキャンを停止
-        }
-
-        if (err && !(err instanceof ZXing.NotFoundException)) {
-            console.error(err);
-        }
-    });
+    }, 500); // 500ミリ秒ごとにスキャン
 });
