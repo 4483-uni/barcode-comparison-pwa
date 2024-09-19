@@ -29,7 +29,8 @@ document.getElementById('start-scan').addEventListener('click', function() {
     };
     //************************
     
-    const codeReader = new ZXing.BrowserMultiFormatReader(hints);
+    //const codeReader = new ZXing.BrowserMultiFormatReader(hints);
+    const codeReader = new ZXing.BrowserMultiFormatReader(hints, options);
     const videoElement = document.getElementById('video');
 
     // スキャン試行回数をリセット
