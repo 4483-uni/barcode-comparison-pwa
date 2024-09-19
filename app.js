@@ -34,8 +34,7 @@ document.getElementById('start-scan').addEventListener('click', function() {
         video: {
             facingMode: 'environment',
             focusMode: 'continuous', // 連続オートフォーカス
-            width: { ideal: 1920 },
-            height: { ideal: 1080 }
+            frameRate: { ideal: 15, max: 30 }
         }
     };
     //********************
