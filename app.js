@@ -18,23 +18,16 @@ document.getElementById('compare').addEventListener('click', function() {
 
 // ZXingを使用してデータマトリクスを読み取る機能
 document.getElementById('start-scan').addEventListener('click', function() {
-    // デコードヒントを設定
     const hints = new Map();
     hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [ZXing.BarcodeFormat.DATA_MATRIX]);
-    hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
+    hints.set(ZXing.DecodeHintType.TRY_HARDER, true); // 認識精度を上げる
 
-    // スキャン間隔を設定（ミリ秒単位）
-    const options = {
-        delayBetweenScanAttempts: 500 // 500ミリ秒ごとにスキャン
-    };
-
-    const codeReader = new ZXing.BrowserMultiFormatReader(hints, options);
+    const codeReader = new ZXing.BrowserMultiFormatReader(hints);
     const videoElement = document.getElementById('video');
 
     // スキャン試行回数をリセット
     scanCount = 0;
     document.getElementById('scanCount').textContent = scanCount;
-    document.getElementById('scanning-indicator').style.display = 'block';
 
     // 連続的なスキャンを開始
     codeReader.decodeFromVideoDevice(undefined, videoElement, (result, err) => {
@@ -46,9 +39,6 @@ document.getElementById('start-scan').addEventListener('click', function() {
             console.log(result);
             document.getElementById('barcode1').value = result.text; // 結果を入力欄に反映
             codeReader.reset(); // スキャンを停止
-
-            // スキャン中表示を停止
-            document.getElementById('scanning-indicator').style.display = 'none';
         }
 
         if (err && !(err instanceof ZXing.NotFoundException)) {
