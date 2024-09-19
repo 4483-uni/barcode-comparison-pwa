@@ -50,6 +50,9 @@ document.getElementById('start-scan').addEventListener('click', function() {
             console.log(result);
             document.getElementById('barcode1').value = result.text; // 結果を入力欄に反映
             codeReader.reset(); // スキャンを停止
+
+            // スキャン中表示を停止
+            document.getElementById('scanning-indicator').style.display = 'none';
         }
 
         if (err && !(err instanceof ZXing.NotFoundException)) {
