@@ -25,7 +25,7 @@ document.getElementById('start-scan').addEventListener('click', function() {
     const codeReader = new ZXing.BrowserMultiFormatReader(hints);
     //const codeReader = new ZXing.BrowserMultiFormatReader(hints, options);
     //codeReader.timeBetweenScansMillis = options.delayBetweenScanAttempts; // スキャン間隔を設定
-    codeReader.timeBetweenScansMillis = 500; // スキャン間隔を設定（ミリ秒単位）
+    codeReader.timeBetweenScansMillis = 5000; // スキャン間隔を設定（ミリ秒単位）
     
     const videoElement = document.getElementById('video');
 
