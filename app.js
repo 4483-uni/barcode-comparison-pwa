@@ -22,7 +22,8 @@ document.getElementById('start-scan').addEventListener('click', function() {
     hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [ZXing.BarcodeFormat.DATA_MATRIX]);
     hints.set(ZXing.DecodeHintType.TRY_HARDER, true); // 認識精度を上げる
     
-    const codeReader = new ZXing.BrowserMultiFormatReader(hints);
+    //const codeReader = new ZXing.BrowserMultiFormatReader(hints);
+    const codeReader = new ZXing.BrowserMultiFormatReader();
     //const codeReader = new ZXing.BrowserMultiFormatReader(hints, options);
     //codeReader.timeBetweenScansMillis = options.delayBetweenScanAttempts; // スキャン間隔を設定
     codeReader.timeBetweenScansMillis = 10; // スキャン間隔を設定（ミリ秒単位）
