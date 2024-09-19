@@ -20,8 +20,7 @@ document.getElementById('compare').addEventListener('click', function() {
 document.getElementById('start-scan').addEventListener('click', function() {
     const hints = new Map();
     hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [ZXing.BarcodeFormat.DATA_MATRIX]);
-    //hints.set(ZXing.DecodeHintType.TRY_HARDER, true); // 認識精度を上げる
-    hints.set(ZXing.DecodeHintType.TRY_HARDER, false); // 認識精度を上げる
+    hints.set(ZXing.DecodeHintType.TRY_HARDER, true); // 認識精度を上げる
     
     const codeReader = new ZXing.BrowserMultiFormatReader(hints);
     //const codeReader = new ZXing.BrowserMultiFormatReader(hints, options);
