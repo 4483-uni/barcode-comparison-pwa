@@ -21,18 +21,11 @@ document.getElementById('start-scan').addEventListener('click', function() {
     const hints = new Map();
     hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [ZXing.BarcodeFormat.DATA_MATRIX]);
     hints.set(ZXing.DecodeHintType.TRY_HARDER, true); // 認識精度を上げる
-
-    //************************
-    // スキャン間隔を設定（ミリ秒単位）
-    const options = {
-        delayBetweenScanAttempts: 500 // 500ミリ秒ごとにスキャン
-    };
-    //************************
     
-    //const codeReader = new ZXing.BrowserMultiFormatReader(hints);
+    const codeReader = new ZXing.BrowserMultiFormatReader(hints);
     //const codeReader = new ZXing.BrowserMultiFormatReader(hints, options);
-    const codeReader = new ZXing.BrowserMultiFormatContinuousReader(hints);
-    codeReader.timeBetweenScansMillis = options.delayBetweenScanAttempts; // スキャン間隔を設定
+    //codeReader.timeBetweenScansMillis = options.delayBetweenScanAttempts; // スキャン間隔を設定
+    codeReader.timeBetweenScansMillis = 500; // スキャン間隔を設定（ミリ秒単位）
     
     const videoElement = document.getElementById('video');
 
@@ -63,7 +56,7 @@ document.getElementById('start-scan').addEventListener('click', function() {
             console.error(err);
         }
     });
-    */
+    
     codeReader.decodeFromVideoDevice(undefined, videoElement, (result, err) => {
         if (result) {
             console.log(result);
@@ -81,5 +74,24 @@ document.getElementById('start-scan').addEventListener('click', function() {
         // スキャン試行回数を更新
         scanCount++;
         document.getElementById('scanCount').textContent = scanCount;
+    });
+    */
+    codeReader.decodeFromVideoDeviceContinuously(undefined, videoElement, (result, err) => {
+        // スキャン試行回数を更新
+        scanCount++;
+        document.getElementById('scanCount').textContent = scanCount;
+
+        if (result) {
+            console.log(result);
+            document.getElementById('barcode1').value = result.text; // 結果を入力欄に反映
+            codeReader.reset(); // スキャンを停止
+
+            // スキャン中表示を停止
+            document.getElementById('scanning-indicator').style.display = 'none';
+        }
+
+        if (err && !(err instanceof ZXing.NotFoundException)) {
+            console.error(err);
+        }
     });
 });
