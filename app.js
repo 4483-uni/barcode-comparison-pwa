@@ -36,6 +36,9 @@ document.getElementById('start-scan').addEventListener('click', function() {
     // スキャン試行回数をリセット
     scanCount = 0;
     document.getElementById('scanCount').textContent = scanCount;
+    //***********
+    document.getElementById('scanning-indicator').style.display = 'block';
+    //************
 
     // 連続的なスキャンを開始
     codeReader.decodeFromVideoDevice(undefined, videoElement, (result, err) => {
