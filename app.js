@@ -37,7 +37,6 @@ document.getElementById('start-scan').addEventListener('click', function() {
     //************
 
     // 連続的なスキャンを開始
-    /*
     codeReader.decodeFromVideoDevice(undefined, videoElement, (result, err) => {
         // スキャン試行回数を更新
         scanCount++;
@@ -56,7 +55,7 @@ document.getElementById('start-scan').addEventListener('click', function() {
             console.error(err);
         }
     });
-    
+    /*
     codeReader.decodeFromVideoDevice(undefined, videoElement, (result, err) => {
         if (result) {
             console.log(result);
@@ -76,22 +75,4 @@ document.getElementById('start-scan').addEventListener('click', function() {
         document.getElementById('scanCount').textContent = scanCount;
     });
     */
-    codeReader.decodeFromVideoDeviceContinuously(undefined, videoElement, (result, err) => {
-        // スキャン試行回数を更新
-        scanCount++;
-        document.getElementById('scanCount').textContent = scanCount;
-
-        if (result) {
-            console.log(result);
-            document.getElementById('barcode1').value = result.text; // 結果を入力欄に反映
-            codeReader.reset(); // スキャンを停止
-
-            // スキャン中表示を停止
-            document.getElementById('scanning-indicator').style.display = 'none';
-        }
-
-        if (err && !(err instanceof ZXing.NotFoundException)) {
-            console.error(err);
-        }
-    });
 });
