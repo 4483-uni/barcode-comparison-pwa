@@ -1,52 +1,39 @@
-<!DOCTYPE html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width">
+<!DOCTYPE html>
+<html lang="ja-JP">
+<head>
+  <meta charset="UTF-8">
+  <script async src="https://docs.opencv.org/master/opencv.js"></script>
+</head>
+<body>
 
-<h1>Camera.js</h1>
-<button id=btnstart>start</button> <button id=btnstop>stop</button>
-<label><input type=checkbox id=chkback checked>backcamera</label>
-<label><input type=checkbox id=chkmirror>mirror</label>
-<button id=btnfront>front camera</button>
-<button id=btnback>back camera</button>
-<br>
-<video id=video style="max-width:90vw"></video><br>
-<hr>
-<a href=https://github.com/code4fukui/Camera/>src on GitHub</a>
+<h1>バーコードを読む</h1>
 
-<script type="module">
-import { Camera } from "./Camera.js";
+<div><img id="imgTag" src="IMG_1090.png"></div>
+<div><span id="spanTag" width="100">解読結果</span></div>
 
-let camera = null;
+<script>
+  let imgElem = document.getElementById('imgTag');
+  let spanElem = document.getElementById('spanTag');
 
-btnstart.onclick = async () => {
-  if (camera) {
-    await camera.stop();
+  function imgProc() {
+    let src = cv.imread(imgElem);
+    let gray = new cv.Mat();
+    cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
+
+    let detector = new cv.barcode_BarcodeDetector();
+
+    let pointsMat = new cv.Mat();
+    let ret = detector.detect(gray, pointsMat);
+    console.log(`Detection: Success=${ret}.`);
+
+    let text = detector.decode(gray, pointsMat);
+    spanElem.innerHTML = `解読結果: ${text}`;
   }
-  camera = new Camera(video, {
-    onFrame: async () => {
-      // use video element as image
-    },
-    backcamera: chkback.checked,
-    fps: 1,
-  });
-  await camera.start();
-};
-btnstop.onclick = async () => {
-  if (camera) {
-    await camera.stop();
-    camera = null;
+
+  var Module = {
+    onRuntimeInitialized: imgProc
   }
-};
-chkback.onchange = async () => {
-  if (camera) {
-    await camera.flip();
-  }
-};
-chkmirror.onchange = () => {
-  video.style.transform = chkmirror.checked ? "scale(-1,1)" : "scale(1,1)";
-};
-btnback.onclick = async () => {
-  camera.setBackCamera(true);
-};
-btnfront.onclick = async () => {
-  camera.setBackCamera(false);
-};
 </script>
+
+</body>
+</html>
