@@ -1,5 +1,26 @@
 // app.js
+// 新しい検出器の生成
+var barcodeDetector = new BarcodeDetector({
+  formats: ["code_39", "codabar", "ean_13"],
+});
 
+// 互換性のチェック
+if (barcodeDetector) {
+  console.log("Barcode Detector に対応しています。");
+} else {
+  console.log("Barcode Detector はこのブラウザーでは対応していません。");
+}
+
+barcodeDetector
+  .detect(imageEl)
+  .then((barcodes) => {
+    barcodes.forEach((barcode) => console.log(barcode.rawData));
+  })
+  .catch((err) => {
+    console.log(err);
+  });
+
+/*
 // スキャン開始ボタンのクリックイベント
 document.getElementById('start-scan').addEventListener('click', function() {
     // 対応ブラウザかチェック
@@ -60,3 +81,4 @@ document.getElementById('start-scan').addEventListener('click', function() {
         alert('このブラウザはBarcode Detector APIをサポートしていません。最新のChromeまたはEdgeをご利用ください。');
     }
 });
+*/
