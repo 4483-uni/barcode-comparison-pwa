@@ -1,39 +1,43 @@
 <!DOCTYPE html>
-<html lang="ja-JP">
+<html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <script async src="https://docs.opencv.org/master/opencv.js"></script>
+    <meta charset="UTF-8">
+    <title>データマトリクス比較 PWA</title>
+    <!-- スタイルシート -->
+    <link rel="stylesheet" href="style.css">
+    <!-- スタイルの調整 -->
+    <style>
+        #video {
+            width: 100%;
+            max-width: 600px;
+            border: 1px solid #ccc;
+        }
+        #scanning-indicator {
+            color: red;
+            font-size: 18px;
+            display: none;
+        }
+    </style>
 </head>
 <body>
+    <h1>データマトリクス比較</h1>
 
-<h1>バーコードを読む</h1>
+    <!-- 入力欄 -->
+    <input type="text" id="barcode1" placeholder="データマトリクスを表示">
 
-<div><img id="imgTag" src="IMG_1090.png"></div>
-<div><span id="spanTag" width="100">解読結果</span></div>
+    <!-- スキャン開始ボタン -->
+    <button id="start-scan">スキャンを開始</button>
 
-<script>
-  let imgElem = document.getElementById('imgTag');
-  let spanElem = document.getElementById('spanTag');
+    <!-- スキャン中の表示 -->
+    <p id="scanning-indicator">スキャン中...</p>
 
-  function imgProc() {
-    let src = cv.imread(imgElem);
-    let gray = new cv.Mat();
-    cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
+    <!-- カメラ映像の表示 -->
+    <video id="video" autoplay></video>
 
-    let detector = new cv.barcode_BarcodeDetector();
+    <!-- 結果表示 -->
+    <p id="result"></p>
 
-    let pointsMat = new cv.Mat();
-    let ret = detector.detect(gray, pointsMat);
-    console.log(`Detection: Success=${ret}.`);
-
-    let text = detector.decode(gray, pointsMat);
-    spanElem.innerHTML = `解読結果: ${text}`;
-  }
-
-  var Module = {
-    onRuntimeInitialized: imgProc
-  }
-</script>
-
+    <!-- JavaScriptファイルの読み込み -->
+    <script src="app.js"></script>
 </body>
 </html>
