@@ -31,13 +31,13 @@ document.getElementById('start-scan').addEventListener('click', function() {
                                 // カメラストリームを停止
                                 stream.getTracks().forEach(track => track.stop());
                             } else {
-                                // 再度スキャンを試みる
+                                // バーコードが見つからない場合、再スキャン
                                 requestAnimationFrame(scanBarcode);
                             }
                         })
                         .catch(err => {
-                            console.error(err);
-                            alert('バーコードの検出中にエラーが発生しました。');
+                            console.error('バーコードの検出中にエラーが発生しました: ', err);
+                            alert(`バーコード検出エラー: ${err.message}`);
 
                             // スキャン中の表示を停止
                             document.getElementById('scanning-indicator').style.display = 'none';
@@ -51,8 +51,9 @@ document.getElementById('start-scan').addEventListener('click', function() {
                 scanBarcode();
             })
             .catch(err => {
-                console.error(err);
-                alert('カメラへのアクセスが拒否されました。');
+                console.error('カメラへのアクセス中にエラーが発生しました: ', err);
+                alert(`カメラアクセスエラー: ${err.message}`);
+
                 // スキャン中の表示を停止
                 document.getElementById('scanning-indicator').style.display = 'none';
             });
