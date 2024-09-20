@@ -1,107 +1,62 @@
-export class Camera {
-  constructor(videoElement, opt) {
-    this.videoElement = videoElement;
-    this.opt = opt || {};
-    this.onFrame = opt.onFrame;
-  }
-  async start() {
-    const w = this.opt.width || 1280;
-    const h = this.opt.height || 720;
-    const video = {
-      width: { ideal: w },
-      height: { ideal: h },
-    };
-    if (navigator.userAgent.indexOf("Android") == -1) {
-      video.facingMode = this.opt.backcamera ? { ideal: "environment" } : "user";
-    }
-    await navigator.mediaDevices.getUserMedia({ video: true });
-    const devs = await navigator.mediaDevices.enumerateDevices();
-    //console.log(devs);
-    /*
-    const div = document.createElement("div");
-    document.body.appendChild(div);
-    div.innerHTML += JSON.stringify(devs.filter(d => d.kind == "videoinput"), null, 2).replace(/\n/g, "<br>");
-    */
-    const tryToStart = async (devs) => {
-      for (const dev of devs) {
-        try {
-          video.deviceId = dev.deviceId;
-          const stream = await navigator.mediaDevices.getUserMedia({ video });
-          this.videoElement.srcObject = stream;
-          this.delay = 1000 / (this.opt.fps || 30);
-          this.stream = stream;
-          this.videoElement.playsInline = true;
-          this.videoElement.autoplay = true;
-          this.videoElement.play();
-          this.active = true;
-          this.endfunc = null;
-          const f = async () => {
-            if (!this.active) {
-              if (this.endfunc) {
-                this.endfunc();
-              }
-              return;
-            }
-            const v = this.videoElement;
-            if (v.readyState == HTMLMediaElement.HAVE_ENOUGH_DATA) {
-              if (this.onFrame) await this.onFrame();
-            }
-            setTimeout(f, this.delay);
-          };
-          f();
-          return;
-        } catch (e) {
-          console.log(e);
-        }
-      }
-    };
+// app.js
 
-    let devs2 = devs.filter(d => {
-      const l = d.label.toLowerCase();
-      const back = l.indexOf("back") >= 0 || l.indexOf("背面") >= 0;
-      return d.kind == "videoinput" &&
-        //l.indexOf("camera") >= 0 &&
-        l.indexOf("immersed") == -1 &&
-        l.indexOf("virtual") == -1 &&
-        this.opt.backcamera == back;
-    });
-    //console.log("devs2", devs2)
-    if (devs2.length > 0) {
-      await tryToStart(devs2);
+// スキャン開始ボタンのクリックイベント
+document.getElementById('start-scan').addEventListener('click', function() {
+    // 対応ブラウザかチェック
+    if ('BarcodeDetector' in window) {
+        // 対応するバーコード形式を指定
+        const barcodeDetector = new BarcodeDetector({ formats: ['data_matrix'] });
+        const videoElement = document.getElementById('video');
+
+        // スキャン中の表示を開始
+        document.getElementById('scanning-indicator').style.display = 'block';
+
+        // カメラの映像を取得
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+            .then(stream => {
+                videoElement.srcObject = stream;
+                videoElement.play();
+
+                // スキャン関数の定義
+                const scanBarcode = () => {
+                    barcodeDetector.detect(videoElement)
+                        .then(barcodes => {
+                            if (barcodes.length > 0) {
+                                // バーコードが検出された場合
+                                document.getElementById('barcode1').value = barcodes[0].rawValue;
+
+                                // スキャン中の表示を停止
+                                document.getElementById('scanning-indicator').style.display = 'none';
+
+                                // カメラストリームを停止
+                                stream.getTracks().forEach(track => track.stop());
+                            } else {
+                                // 再度スキャンを試みる
+                                requestAnimationFrame(scanBarcode);
+                            }
+                        })
+                        .catch(err => {
+                            console.error(err);
+                            alert('バーコードの検出中にエラーが発生しました。');
+
+                            // スキャン中の表示を停止
+                            document.getElementById('scanning-indicator').style.display = 'none';
+
+                            // カメラストリームを停止
+                            stream.getTracks().forEach(track => track.stop());
+                        });
+                };
+
+                // スキャンを開始
+                scanBarcode();
+            })
+            .catch(err => {
+                console.error(err);
+                alert('カメラへのアクセスが拒否されました。');
+                // スキャン中の表示を停止
+                document.getElementById('scanning-indicator').style.display = 'none';
+            });
     } else {
-      devs2 = devs.filter(d => {
-        const l = d.label.toLowerCase();
-        return d.kind == "videoinput" &&
-          //l.indexOf("camera") >= 0 &&
-          l.indexOf("immersed") == -1 &&
-          l.indexOf("virtual") == -1;
-      });
-      if (devs2.length > 0) {
-        await tryToStart(devs2);
-      }
+        alert('このブラウザはBarcode Detector APIをサポートしていません。最新のChromeまたはEdgeをご利用ください。');
     }
-  }
-  async stop() {
-    return new Promise((resolve) => {
-      this.videoElement.pause();
-      if (this.stream) {
-        this.stream.getVideoTracks().forEach(v => v.stop());
-        this.stream = null;
-      }
-      this.videoElement.srcObject = null;
-      this.active = false;
-      this.endfunc = resolve;
-    });
-  }
-  async flip() {
-    await this.stop();
-    this.opt.backcamera = !this.opt.backcamera;
-    await this.start();
-  }
-  async setBackCamera(b) {
-    if (this.opt.backcamera == b) return;
-    await this.stop();
-    this.opt.backcamera = b;
-    await this.start();
-  }
-};
+});
