@@ -1,91 +1,62 @@
-// スキャン試行回数のカウンターを初期化
-let scanCount = 0;
+// app.js
 
-// バーコード比較機能
-document.getElementById('compare').addEventListener('click', function() {
-    const barcode1 = document.getElementById('barcode1').value;
-    const barcode2 = document.getElementById('barcode2').value;
-    const resultElement = document.getElementById('result');
-
-    if (barcode1 === barcode2) {
-        resultElement.textContent = 'OK: バーコードが一致しました';
-        resultElement.style.color = 'green';
-    } else {
-        resultElement.textContent = 'NG: バーコードが一致しません';
-        resultElement.style.color = 'red';
-    }
-});
-
-// ZXingを使用してデータマトリクスを読み取る機能
+// スキャン開始ボタンのクリックイベント
 document.getElementById('start-scan').addEventListener('click', function() {
-    const hints = new Map();
-    hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [ZXing.BarcodeFormat.DATA_MATRIX]);
-    hints.set(ZXing.DecodeHintType.TRY_HARDER, true); // 認識精度を上げる
-    //hints.set(ZXing.DecodeHintType.PURE_BARCODE, true); // PURE_BARCODEヒントを試す
-    
-    const codeReader = new ZXing.BrowserMultiFormatReader(hints);
-    //const codeReader = new ZXing.BrowserMultiFormatReader();
-    //const codeReader = new ZXing.BrowserMultiFormatReader(hints, options);
-    //codeReader.timeBetweenScansMillis = options.delayBetweenScanAttempts; // スキャン間隔を設定
-    codeReader.timeBetweenScansMillis = 10; // スキャン間隔を設定（ミリ秒単位）
-    
-    const videoElement = document.getElementById('video');
+    // 対応ブラウザかチェック
+    if ('BarcodeDetector' in window) {
+        // 対応するバーコード形式を指定
+        const barcodeDetector = new BarcodeDetector({ formats: ['data_matrix'] });
+        const videoElement = document.getElementById('video');
 
-    //********************
-    const constraints = {
-        video: {
-            facingMode: 'environment',
-            focusMode: 'continuous', // 連続オートフォーカス
-            frameRate: { ideal: 15, max: 30 }
-        }
-    };
-    //********************
-    
-    // スキャン試行回数をリセット
-    scanCount = 0;
-    document.getElementById('scanCount').textContent = scanCount;
-    //***********
-    document.getElementById('scanning-indicator').style.display = 'block';
-    //************
+        // スキャン中の表示を開始
+        document.getElementById('scanning-indicator').style.display = 'block';
 
-    // 連続的なスキャンを開始
-    codeReader.decodeFromVideoDevice(undefined, videoElement, (result, err) => {
-        // スキャン試行回数を更新
-        scanCount++;
-        document.getElementById('scanCount').textContent = scanCount;
+        // カメラの映像を取得
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+            .then(stream => {
+                videoElement.srcObject = stream;
+                videoElement.play();
 
-        if (result) {
-            console.log(result);
-            document.getElementById('barcode1').value = result.text; // 結果を入力欄に反映
-            codeReader.reset(); // スキャンを停止
+                // スキャン関数の定義
+                const scanBarcode = () => {
+                    barcodeDetector.detect(videoElement)
+                        .then(barcodes => {
+                            if (barcodes.length > 0) {
+                                // バーコードが検出された場合
+                                document.getElementById('barcode1').value = barcodes[0].rawValue;
 
-            // スキャン中表示を停止
-            document.getElementById('scanning-indicator').style.display = 'none';
-        }
+                                // スキャン中の表示を停止
+                                document.getElementById('scanning-indicator').style.display = 'none';
 
-        if (err && !(err instanceof ZXing.NotFoundException)) {
-            console.error(err);
-        }
-    //});
-    }, constraints);
-    /*
-    codeReader.decodeFromVideoDevice(undefined, videoElement, (result, err) => {
-        if (result) {
-            console.log(result);
-            document.getElementById('barcode1').value = result.text; // 結果を入力欄に反映
-            codeReader.reset(); // スキャンを停止
+                                // カメラストリームを停止
+                                stream.getTracks().forEach(track => track.stop());
+                            } else {
+                                // 再度スキャンを試みる
+                                requestAnimationFrame(scanBarcode);
+                            }
+                        })
+                        .catch(err => {
+                            console.error(err);
+                            alert('バーコードの検出中にエラーが発生しました。');
 
-            // スキャン中表示を停止
-            document.getElementById('scanning-indicator').style.display = 'none';
-        }
+                            // スキャン中の表示を停止
+                            document.getElementById('scanning-indicator').style.display = 'none';
 
-        if (err && !(err instanceof ZXing.NotFoundException)) {
-            console.error(err);
-        }
+                            // カメラストリームを停止
+                            stream.getTracks().forEach(track => track.stop());
+                        });
+                };
 
-        // スキャン試行回数を更新
-        scanCount++;
-        document.getElementById('scanCount').textContent = scanCount;
-    });
-    */
+                // スキャンを開始
+                scanBarcode();
+            })
+            .catch(err => {
+                console.error(err);
+                alert('カメラへのアクセスが拒否されました。');
+                // スキャン中の表示を停止
+                document.getElementById('scanning-indicator').style.display = 'none';
+            });
+    } else {
+        alert('このブラウザはBarcode Detector APIをサポートしていません。最新のChromeまたはEdgeをご利用ください。');
+    }
 });
