@@ -11,15 +11,6 @@ if (barcodeDetector) {
   alert('Barcode Detector はこのブラウザーでは対応していません。');
 }
 
-barcodeDetector
-  .detect(imageEl)
-  .then((barcodes) => {
-    barcodes.forEach((barcode) => console.log(barcode.rawData));
-  })
-  .catch((err) => {
-    console.log(err);
-  });
-
 /*
 // スキャン開始ボタンのクリックイベント
 document.getElementById('start-scan').addEventListener('click', function() {
