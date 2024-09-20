@@ -1,6 +1,6 @@
 // app.js
 // 新しい検出器の生成
-var barcodeDetector = new BarcodeDetector({
+const barcodeDetector = new BarcodeDetector({
   formats: ["code_39", "codabar", "ean_13"],
 });
 
