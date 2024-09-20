@@ -1,133 +1,107 @@
-window.SQR = window.SQR || {}
-
-SQR.reader = (() => {
-    /**
-     * getUserMedia()に非対応の場合は非対応の表示をする
-     */
-    const showUnsuportedScreen = () => {
-        document.querySelector('#js-unsupported').classList.add('is-show')
+export class Camera {
+  constructor(videoElement, opt) {
+    this.videoElement = videoElement;
+    this.opt = opt || {};
+    this.onFrame = opt.onFrame;
+  }
+  async start() {
+    const w = this.opt.width || 1280;
+    const h = this.opt.height || 720;
+    const video = {
+      width: { ideal: w },
+      height: { ideal: h },
+    };
+    if (navigator.userAgent.indexOf("Android") == -1) {
+      video.facingMode = this.opt.backcamera ? { ideal: "environment" } : "user";
     }
-    if (!navigator.mediaDevices) {
-        showUnsuportedScreen()
-        return
-    }
-
-    const video = document.querySelector('#js-video')
-
-    /**
-     * videoの出力をCanvasに描画して画像化 jsQRを使用してQR解析
-     */
-    const checkQRUseLibrary = () => {
-        const canvas = document.querySelector('#js-canvas')
-        const ctx = canvas.getContext('2d')
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
-        const code = jsQR(imageData.data, canvas.width, canvas.height)
-
-        if (code) {
-            SQR.modal.open(code.data)
-        } else {
-            setTimeout(checkQRUseLibrary, 200)
+    await navigator.mediaDevices.getUserMedia({ video: true });
+    const devs = await navigator.mediaDevices.enumerateDevices();
+    //console.log(devs);
+    /*
+    const div = document.createElement("div");
+    document.body.appendChild(div);
+    div.innerHTML += JSON.stringify(devs.filter(d => d.kind == "videoinput"), null, 2).replace(/\n/g, "<br>");
+    */
+    const tryToStart = async (devs) => {
+      for (const dev of devs) {
+        try {
+          video.deviceId = dev.deviceId;
+          const stream = await navigator.mediaDevices.getUserMedia({ video });
+          this.videoElement.srcObject = stream;
+          this.delay = 1000 / (this.opt.fps || 30);
+          this.stream = stream;
+          this.videoElement.playsInline = true;
+          this.videoElement.autoplay = true;
+          this.videoElement.play();
+          this.active = true;
+          this.endfunc = null;
+          const f = async () => {
+            if (!this.active) {
+              if (this.endfunc) {
+                this.endfunc();
+              }
+              return;
+            }
+            const v = this.videoElement;
+            if (v.readyState == HTMLMediaElement.HAVE_ENOUGH_DATA) {
+              if (this.onFrame) await this.onFrame();
+            }
+            setTimeout(f, this.delay);
+          };
+          f();
+          return;
+        } catch (e) {
+          console.log(e);
         }
+      }
+    };
+
+    let devs2 = devs.filter(d => {
+      const l = d.label.toLowerCase();
+      const back = l.indexOf("back") >= 0 || l.indexOf("背面") >= 0;
+      return d.kind == "videoinput" &&
+        //l.indexOf("camera") >= 0 &&
+        l.indexOf("immersed") == -1 &&
+        l.indexOf("virtual") == -1 &&
+        this.opt.backcamera == back;
+    });
+    //console.log("devs2", devs2)
+    if (devs2.length > 0) {
+      await tryToStart(devs2);
+    } else {
+      devs2 = devs.filter(d => {
+        const l = d.label.toLowerCase();
+        return d.kind == "videoinput" &&
+          //l.indexOf("camera") >= 0 &&
+          l.indexOf("immersed") == -1 &&
+          l.indexOf("virtual") == -1;
+      });
+      if (devs2.length > 0) {
+        await tryToStart(devs2);
+      }
     }
-
-    /**
-     * videoの出力をBarcodeDetectorを使用してQR解析
-     */
-    const checkQRUseBarcodeDetector = () => {
-        const barcodeDetector = new BarcodeDetector()
-        barcodeDetector
-            .detect(video)
-            .then((barcodes) => {
-                if (barcodes.length > 0) {
-                    for (let barcode of barcodes) {
-                        SQR.modal.open(barcode.rawValue)
-                    }
-                } else {
-                    setTimeout(checkQRUseBarcodeDetector, 200)
-                }
-            })
-            .catch(() => {
-                console.error('Barcode Detection failed, boo.')
-            })
-    }
-
-    /**
-     * BarcodeDetector APIを使えるかどうかで処理を分岐
-     */
-    const findQR = () => {
-        window.BarcodeDetector
-            ? checkQRUseBarcodeDetector()
-            : checkQRUseLibrary()
-    }
-
-    /**
-     * デバイスのカメラを起動
-     */
-    const initCamera = () => {
-        navigator.mediaDevices
-            .getUserMedia({
-                audio: false,
-                video: {
-                    facingMode: {
-                        exact: 'environment',
-                    },
-                },
-            })
-            .then((stream) => {
-                video.srcObject = stream
-                video.onloadedmetadata = () => {
-                    video.play()
-                    findQR()
-                }
-            })
-            .catch(() => {
-                showUnsuportedScreen()
-            })
-    }
-
-    return {
-        initCamera,
-        findQR,
-    }
-})()
-
-SQR.modal = (() => {
-    const result = document.querySelector('#js-result')
-    const link = document.querySelector('#js-link')
-    const copyBtn = document.querySelector('#js-copy')
-    const modal = document.querySelector('#js-modal')
-    const modalClose = document.querySelector('#js-modal-close')
-
-    /**
-     * 取得した文字列を入れ込んでモーダルを開く
-     */
-    const open = (url) => {
-        result.value = url
-        link.setAttribute('href', url)
-        modal.classList.add('is-show')
-    }
-
-    /**
-     * モーダルを閉じてQR読み込みを再開
-     */
-    const close = () => {
-        modal.classList.remove('is-show')
-        SQR.reader.findQR()
-    }
-
-    const copyResultText = () => {
-        result.select()
-        document.execCommand('copy')
-    }
-
-    copyBtn.addEventListener('click', copyResultText)
-
-    modalClose.addEventListener('click', () => close())
-
-    return {
-        open,
-    }
-})()
-
-if (SQR.reader) SQR.reader.initCamera()
+  }
+  async stop() {
+    return new Promise((resolve) => {
+      this.videoElement.pause();
+      if (this.stream) {
+        this.stream.getVideoTracks().forEach(v => v.stop());
+        this.stream = null;
+      }
+      this.videoElement.srcObject = null;
+      this.active = false;
+      this.endfunc = resolve;
+    });
+  }
+  async flip() {
+    await this.stop();
+    this.opt.backcamera = !this.opt.backcamera;
+    await this.start();
+  }
+  async setBackCamera(b) {
+    if (this.opt.backcamera == b) return;
+    await this.stop();
+    this.opt.backcamera = b;
+    await this.start();
+  }
+};
