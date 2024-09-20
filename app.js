@@ -6,9 +6,9 @@ var barcodeDetector = new BarcodeDetector({
 
 // 互換性のチェック
 if (barcodeDetector) {
-  console.log("Barcode Detector に対応しています。");
+  alert('Barcode Detector に対応しています。');
 } else {
-  console.log("Barcode Detector はこのブラウザーでは対応していません。");
+  alert('Barcode Detector はこのブラウザーでは対応していません。');
 }
 
 barcodeDetector
