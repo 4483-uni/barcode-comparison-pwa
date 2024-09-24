@@ -50,8 +50,8 @@ document.getElementById('start-scan').addEventListener('click', function() {
                     };
 
                     // スキャンを開始
-                    //scanBarcode();
-                    requestAnimationFrame(scanBarcode);
+                    scanBarcode();
+                    //requestAnimationFrame(scanBarcode);
                 });
             })
             .catch(err => {
