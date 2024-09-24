@@ -47,7 +47,7 @@ document.getElementById('start-scan').addEventListener('click', function() {
         const barcodeDetector = new BarcodeDetector({ formats: ['data_matrix'] });
 
         // カメラの映像を取得
-        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 }, frameRate: { ideal: 60 } } })
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 }, frameRate: { ideal: 60 } } })
             .then(stream => {
                 videoElement.srcObject = stream;
                 videoElement.play();
