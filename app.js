@@ -1,5 +1,27 @@
 // app.js
 
+// サポートされているバーコード形式を表示する関数
+function displaySupportedFormats() {
+    if ('BarcodeDetector' in window) {
+        BarcodeDetector.getSupportedFormats()
+            .then(formats => {
+                console.log('サポートされているバーコード形式:', formats);
+                const supportedFormatsElement = document.getElementById('supported-formats');
+                supportedFormatsElement.textContent = 'サポートされているバーコード形式: ' + formats.join(', ');
+            })
+            .catch(err => {
+                console.error('サポートされているフォーマットの取得中にエラーが発生しました:', err);
+            });
+    } else {
+        alert('このブラウザはBarcode Detector APIをサポートしていません。');
+    }
+}
+
+// ページ読み込み時にサポートされているバーコード形式を確認して表示
+document.addEventListener('DOMContentLoaded', function() {
+    displaySupportedFormats();
+});
+
 // スキャン開始ボタンのクリックイベント
 document.getElementById('start-scan').addEventListener('click', function() {
     // 対応ブラウザかチェック
