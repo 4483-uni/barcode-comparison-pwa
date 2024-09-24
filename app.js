@@ -36,7 +36,7 @@ document.getElementById('start-scan').addEventListener('click', function() {
         document.getElementById('scanning-indicator').style.display = 'block';
 
         // カメラの映像を取得
-        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } } })
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 }, frameRate: { ideal: 60 } } })
             .then(stream => {
                 videoElement.srcObject = stream;
                 videoElement.play();
