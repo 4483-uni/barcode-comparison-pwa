@@ -1,91 +1,69 @@
-// app.js
+// スキャン試行回数のカウンターを初期化
+let scanCount = 0;
 
-// サポートされているバーコード形式を表示する関数
-function displaySupportedFormats() {
-    if ('BarcodeDetector' in window) {
-        BarcodeDetector.getSupportedFormats()
-            .then(formats => {
-                console.log('サポートされているバーコード形式:', formats);
-                const supportedFormatsElement = document.getElementById('supported-formats');
-                supportedFormatsElement.textContent = 'サポートされているバーコード形式: ' + formats.join(', ');
+// スキャン関数
+function startScan(videoElement, barcodeDetector) {
+    const scan = () => {
+        // カメラ映像のスキャン
+        barcodeDetector.detect(videoElement)
+            .then(barcodes => {
+                if (barcodes.length > 0) {
+                    console.log('バーコード検出:', barcodes[0].rawValue);
+                    document.getElementById('barcode1').value = barcodes[0].rawValue;
+
+                    // スキャン終了時にストリームを停止
+                    const stream = videoElement.srcObject;
+                    stream.getTracks().forEach(track => track.stop());
+
+                    // スキャン終了後の処理
+                    document.getElementById('scanning-indicator').style.display = 'none';
+                } else {
+                    // バーコードが検出されなかった場合、次のフレームで再試行
+                    requestAnimationFrame(scan);
+                }
             })
             .catch(err => {
-                console.error('サポートされているフォーマットの取得中にエラーが発生しました:', err);
+                console.error('検出エラー:', err);
+                // エラー発生時にも次のフレームで再試行
+                requestAnimationFrame(scan);
             });
-    } else {
-        alert('このブラウザはBarcode Detector APIをサポートしていません。');
-    }
-}
 
-// ページ読み込み時にサポートされているバーコード形式を確認して表示
-document.addEventListener('DOMContentLoaded', function() {
-    displaySupportedFormats();
-});
+        // スキャン試行回数をカウント
+        scanCount++;
+        document.getElementById('scanCount').textContent = scanCount;
+    };
+
+    // 初回スキャンを実行
+    requestAnimationFrame(scan);
+}
 
 // スキャン開始ボタンのクリックイベント
 document.getElementById('start-scan').addEventListener('click', function() {
-    // 対応ブラウザかチェック
-    if ('BarcodeDetector' in window) {
-        // 対応するバーコード形式を指定
-        const barcodeDetector = new BarcodeDetector({ formats: ['data_matrix'] });
-        const videoElement = document.getElementById('video');
-        //const canvasElement = document.getElementById('canvas');
-        //const context = canvasElement.getContext('2d');
+    const videoElement = document.getElementById('video');
+    const scanningIndicator = document.getElementById('scanning-indicator');
 
-        // スキャン中の表示を開始
-        document.getElementById('scanning-indicator').style.display = 'block';
+    // BarcodeDetector APIのサポート確認
+    if ('BarcodeDetector' in window) {
+        const barcodeDetector = new BarcodeDetector({ formats: ['data_matrix'] });
 
         // カメラの映像を取得
-        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 }, frameRate: { ideal: 60 } } })
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
             .then(stream => {
                 videoElement.srcObject = stream;
                 videoElement.play();
 
-                // ビデオが再生されたことを確認してからスキャンを開始
-                videoElement.addEventListener('loadeddata', () => {
-                    // スキャン関数の定義
-                    const scanBarcode = () => {
-                        barcodeDetector.detect(videoElement)
-                            .then(barcodes => {
-                                if (barcodes.length > 0) {
-                                    // バーコードが検出された場合
-                                    document.getElementById('barcode1').value = barcodes[0].rawValue;
+                // スキャン中の表示を開始
+                scanningIndicator.style.display = 'block';
 
-                                    // スキャン中の表示を停止
-                                    document.getElementById('scanning-indicator').style.display = 'none';
-
-                                    // カメラストリームを停止
-                                    stream.getTracks().forEach(track => track.stop());
-                                } else {
-                                    // バーコードが見つからない場合、再スキャン
-                                    requestAnimationFrame(scanBarcode);
-                                }
-                            })
-                            .catch(err => {
-                                console.error('バーコードの検出中にエラーが発生しました: ', err);
-                                alert(`バーコード検出エラー: ${err.message}`);
-
-                                // スキャン中の表示を停止
-                                document.getElementById('scanning-indicator').style.display = 'none';
-
-                                // カメラストリームを停止
-                                stream.getTracks().forEach(track => track.stop());
-                            });
-                    };
-
-                    // スキャンを開始
-                    //scanBarcode();
-                    requestAnimationFrame(scanBarcode);
-                });
+                // スキャンを開始
+                scanCount = 0;
+                startScan(videoElement, barcodeDetector);
             })
             .catch(err => {
-                console.error('カメラへのアクセス中にエラーが発生しました: ', err);
-                alert(`カメラアクセスエラー: ${err.message}`);
-
-                // スキャン中の表示を停止
-                document.getElementById('scanning-indicator').style.display = 'none';
+                console.error('カメラへのアクセスに失敗しました:', err);
+                alert('カメラへのアクセスが拒否されました。');
             });
     } else {
-        alert('このブラウザはBarcode Detector APIをサポートしていません。最新のChromeまたはEdgeをご利用ください。');
+        alert('このブラウザはBarcode Detector APIをサポートしていません。');
     }
 });
