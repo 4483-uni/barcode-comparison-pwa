@@ -36,7 +36,9 @@
     <p id="scanning-indicator">スキャン中...</p>
 
     <!-- カメラ映像の表示 -->
-    <video id="video" autoplay></video>
+    <!--<video id="video" autoplay></video>-->
+    <video id="video" width="640" height="480" autoplay></video>
+    <canvas id="canvas" width="320" height="240" style="display:none;"></canvas> <!-- スキャン用の小さい領域 -->
 
     <!-- 結果表示 -->
     <p id="result"></p>
