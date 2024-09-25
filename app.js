@@ -59,21 +59,32 @@ document.getElementById('start-scan').addEventListener('click', function() {
 
                 // ビデオが再生されたことを確認してからスキャンを開始
                 videoElement.addEventListener('loadeddata', () => {
+
+                    let scanning = true;  // スキャンの状態を管理するフラグ
+                    
                     // スキャン関数の定義
                     const scanBarcode = () => {
+                        if (!scanning) return;  // スキャンが停止された場合は実行しない
+                        
                         barcodeDetector.detect(videoElement)
                             .then(barcodes => {
                                 if (barcodes.length > 0) {
                                     // バーコードが検出された場合
+                                    document.getElementById('result').textContent = 'バーコードが検出されました: ' + barcodes[0].rawValue;
+                                    document.getElementById('result').style.color = 'green';  // 成功時は緑色
+                                    
                                     document.getElementById('barcode1').value = barcodes[0].rawValue;
-
+                                    
                                     // スキャン中の表示を停止
                                     document.getElementById('scanning-indicator').style.display = 'none';
 
+                                    scanning = false;  // スキャンを停止
                                     // カメラストリームを停止
                                     stream.getTracks().forEach(track => track.stop());
                                 } else {
                                     // バーコードが見つからない場合、再スキャン
+                                    document.getElementById('result').textContent = 'バーコードが見つかりませんでした。';
+                                    document.getElementById('result').style.color = 'red';  // 失敗時は赤色
                                     requestAnimationFrame(scanBarcode);
                                 }
                             })
@@ -84,6 +95,8 @@ document.getElementById('start-scan').addEventListener('click', function() {
                                 // スキャン中の表示を停止
                                 document.getElementById('scanning-indicator').style.display = 'none';
 
+                                scanning = false;  // エラー発生時にスキャンを停止
+                                
                                 // カメラストリームを停止
                                 stream.getTracks().forEach(track => track.stop());
                             });
