@@ -13,10 +13,20 @@
             max-width: 600px;
             border: 1px solid #ccc;
         }
+        #canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            border: 2px solid red; /* 赤枠を表示 */
+        }
         #scanning-indicator {
             color: red;
             font-size: 18px;
             display: none;
+        }
+        .container {
+            position: relative;
+            display: inline-block;
         }
     </style>
 </head>
@@ -36,8 +46,12 @@
     <p id="scanning-indicator">スキャン中...</p>
 
     <!-- カメラ映像の表示 -->
-    <video id="video" autoplay></video>
-
+    <!--<video id="video" autoplay></video>-->
+    <div class="container">
+        <video id="video" autoplay></video>
+        <canvas id="canvas" width="200" height="150"></canvas> <!-- 赤枠でスキャン領域を示す -->
+    </div>
+    
     <!-- 結果表示 -->
     <p id="result"></p>
 
