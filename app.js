@@ -26,14 +26,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // スキャン開始ボタンのクリックイベント
 document.getElementById('start-scan').addEventListener('click', function() {
+    const videoElement = document.getElementById('video');
+    const canvasElement = document.getElementById('canvas');
+    const context = canvasElement.getContext('2d');
+    
     // 対応ブラウザかチェック
     if ('BarcodeDetector' in window) {
         // 対応するバーコード形式を指定
         const barcodeDetector = new BarcodeDetector({ formats: ['data_matrix'] });
-        const videoElement = document.getElementById('video');
-        //const canvasElement = document.getElementById('canvas');
-        //const context = canvasElement.getContext('2d');
-
         const constraints = {
             video: {
                 facingMode: 'environment',
@@ -65,8 +65,11 @@ document.getElementById('start-scan').addEventListener('click', function() {
                     // スキャン関数の定義
                     const scanBarcode = () => {
                         if (!scanning) return;  // スキャンが停止された場合は実行しない
+
+                        // カメラ映像の一部（中央）をcanvasに描画
+                        context.drawImage(videoElement, 150, 100, 200, 150, 0, 0, canvasElement.width, canvasElement.height); // 映像の一部を取得
                         
-                        barcodeDetector.detect(videoElement)
+                        barcodeDetector.detect(canvasElement)
                             .then(barcodes => {
                                 if (barcodes.length > 0) {
                                     // バーコードが検出された場合
