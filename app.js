@@ -11,6 +11,8 @@ function displaySupportedFormats() {
             })
             .catch(err => {
                 console.error('サポートされているフォーマットの取得中にエラーが発生しました:', err);
+                const supportedFormatsElement = document.getElementById('supported-formats');
+                supportedFormatsElement.textContent = 'サポートされているバーコード形式の取得に失敗しました。';
             });
     } else {
         alert('このブラウザはBarcode Detector APIをサポートしていません。');
@@ -32,11 +34,25 @@ document.getElementById('start-scan').addEventListener('click', function() {
         //const canvasElement = document.getElementById('canvas');
         //const context = canvasElement.getContext('2d');
 
+        const constraints = {
+            video: {
+                facingMode: 'environment',
+                width: { ideal: 1920 },
+                height: { ideal: 1080 },
+                frameRate: { ideal: 60 }
+            }
+        };
+        
         // スキャン中の表示を開始
         document.getElementById('scanning-indicator').style.display = 'block';
 
         // カメラの映像を取得
-        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 }, frameRate: { ideal: 60 } } })
+        //navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 }, frameRate: { ideal: 60 } } })
+        navigator.mediaDevices.getUserMedia(constraints)
+            .catch(err => {
+                console.warn('指定した解像度がサポートされていないため、デフォルト解像度にフォールバックします。', err);
+                return navigator.mediaDevices.getUserMedia({ video: true }); // デフォルトの設定で再試行
+            })
             .then(stream => {
                 videoElement.srcObject = stream;
                 videoElement.play();
